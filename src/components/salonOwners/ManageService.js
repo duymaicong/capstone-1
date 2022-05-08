@@ -5,6 +5,8 @@ import fakeReviews from "../../components/mockUp/review.json";
 import paperbg from "../../assets/paperbg.jpg";
 import bgImg from "../../assets/barbershopbg.jpg";
 import patterbg from "../../assets/patterbg.svg";
+import { districts, times } from "../../assets/data/data.js";
+import { validEmail, validPhone } from "../../validations/regex";
 
 import {
   getListServiceForSalon,
@@ -12,6 +14,8 @@ import {
   getProfileOfSalon,
   addService,
   deleteService,
+  editService,
+  editSalonInfo,
 } from "../../redux/actions/creators/salon";
 import { currencyFormatter } from "../../utils";
 import imageUnavailable from "../../assets/image-unavailable.png";
@@ -23,6 +27,32 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
+
+// -- MODAL CSS --
+const modalcss = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 800,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  borderRadius: "25px",
+  boxShadow: 24,
+  p: 4,
+};
+const btnTime = {
+  width: "2rem",
+  height: "2.3rem",
+  textAlign: "center",
+  borderRadius: "15%",
+};
+
+const root = {
+  backgroundImage: `url(${bgImg})`,
+  backgroundRepeat: "repeat-y",
+  backgroundSize: "100%",
+};
 
 export default function ManageService() {
   //create state for add service
@@ -39,6 +69,9 @@ export default function ManageService() {
   const [priceError, setPiceError] = useState(false);
   const [promotioError, setPromotionError] = useState(false);
 
+  //STATE EDIT SERVICE
+  const [serviceInfo, setServiceInfo] = useState(undefined);
+
   //setServiceTime,
   const addTime = () => {
     setServiceTime(serviceTime + 15);
@@ -48,6 +81,32 @@ export default function ManageService() {
       setServiceTime(serviceTime - 15);
     } else {
       setServiceTime(15);
+    }
+  };
+
+  const addTimeEdit = () => {
+    if (!serviceInfo) {
+      return;
+    } else {
+      setServiceInfo({
+        ...serviceInfo,
+        service_time: serviceInfo.service_time + 15,
+      });
+    }
+  };
+
+  const minusTimeEdit = (time) => {
+    if (!serviceInfo) return;
+    if (serviceInfo?.service_time >= 30) {
+      setServiceInfo({
+        ...serviceInfo,
+        service_time: serviceInfo.service_time - 15,
+      });
+    } else {
+      setServiceInfo({
+        ...serviceInfo,
+        service_time: 15,
+      });
     }
   };
 
@@ -113,11 +172,6 @@ export default function ManageService() {
     }
   };
 
-  const root = {
-    backgroundImage: `url(${bgImg})`,
-    backgroundRepeat: "repeat-y",
-    backgroundSize: "100%",
-  };
   const dispatch = useDispatch();
   // -- FIXED DATA --
   // const fakeServiceList = serviceLists;
@@ -157,8 +211,14 @@ export default function ManageService() {
 
   // -- MODAL EDIT SERVICE --
   const [openEditService, setOpenEditService] = useState(false);
-  const handleOpenEditService = () => setOpenEditService(true);
-  const handleCloseEditService = () => setOpenEditService(false);
+  const handleOpenEditService = (serviceInfo) => {
+    setOpenEditService(true);
+    setServiceInfo(serviceInfo);
+  };
+  const handleCloseEditService = () => {
+    setOpenEditService(false);
+    setServiceInfo(undefined);
+  };
 
   // -- MODAL DELETE SERVICE --
   const [openDeleteService, setOpenDeleteSerive] = useState(false);
@@ -191,7 +251,70 @@ export default function ManageService() {
     );
   };
 
-  // -- MODAL SALON --
+  //CALL SUCESSMESS EDIT SERVICE
+  const { serviceEdited, successMess } = useSelector(
+    (state) => state.editService
+  );
+
+  // STATE ERROR FOR EDIT SERVICE
+  const [editError, setEditError] = useState(null);
+
+  //EDIT SERVICE
+  const handleEditService = (event) => {
+    event.preventDefault();
+    const {
+      name,
+      price,
+      service_time,
+      promotion,
+      content,
+      description,
+      image,
+    } = serviceInfo;
+    console.log(serviceInfo);
+    if (
+      !name ||
+      !price ||
+      !service_time ||
+      !content ||
+      !description ||
+      !image
+    ) {
+      setEditError("Please enter all the fields!");
+      return;
+    }
+    if (price <= 0) {
+      setEditError("Price is a number greater than 0.");
+    }
+    if (promotion < 0) {
+      setEditError("Promotion is a number greater than or equal to 0..");
+    }
+    setEditError(null);
+    const submitServiceObject = {
+      name,
+      price,
+      service_time,
+      promotion,
+      content,
+      description,
+      image,
+    };
+    const successCallback = () => {
+      handleCloseEditService();
+      dispatch(resetListServiceOfSalon());
+      dispatch(getListServiceForSalon(token));
+    };
+    dispatch(
+      editService(
+        token,
+        submitServiceObject,
+        successCallback,
+        serviceInfo.serviceId
+      )
+    );
+  };
+
+  // -- MODAL EDIT PROFILE SALON --
   const [openSalon, setOpenSalon] = useState(false);
   const handleOpenSalon = () => setOpenSalon(true);
   const handleCloseSalon = () => setOpenSalon(false);
@@ -199,24 +322,79 @@ export default function ManageService() {
   // -- RATING --
   const [valueRating, setValueRating] = React.useState(2);
 
-  // -- MODAL CSS --
-  const modalcss = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 800,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    borderRadius: "25px",
-    boxShadow: 24,
-    p: 4,
-  };
-  const btnTime = {
-    width: "2rem",
-    height: "2.3rem",
-    textAlign: "center",
-    borderRadius: "15%",
+  //STATE EDIT BUSINESS INFO
+  const [businessInfo, setBusinessInfo] = useState(null);
+
+  //LOAD BUSINESS INFO
+  useEffect(() => {
+    if (profileSalon) {
+      setBusinessInfo(profileSalon[0]);
+    }
+  }, [profileSalon]);
+
+  // VALIDATE ERROR MESSAGE STATE
+  const [emptyError, setEmptyError] = useState(false);
+  const [phoneErr, setPhoneErr] = useState(false);
+
+  // CALL EDIT SALON FROM REDUX
+  const { salonInfoEdited, successMessage, errMessage } = useSelector(
+    (state) => state.editSalonInfo
+  );
+
+  // EDIT SALON INFO
+  const handleEditSalonInfo = (e) => {
+    e.preventDefault();
+    setEmptyError(false);
+    setPhoneErr(false);
+    const {
+      nameSalon,
+      phone,
+      timeOpen,
+      timeClose,
+      district,
+      city,
+      detailAddress,
+      image,
+      description,
+    } = businessInfo;
+
+    if (
+      !nameSalon ||
+      !description ||
+      !phone ||
+      !district ||
+      !city ||
+      !detailAddress ||
+      !timeOpen ||
+      !timeClose ||
+      !image
+    ) {
+      setEmptyError(true);
+      return;
+    }
+    if (!validPhone.test(phone)) {
+      setPhoneErr(true);
+      return;
+    }
+    setEmptyError(false);
+    setPhoneErr(false);
+    const submitOjb = {
+      nameSalon,
+      phone,
+      timeOpen,
+      timeClose,
+      district,
+      city,
+      detailAddress,
+      image,
+      description,
+    };
+    console.log(submitOjb);
+    const callback = () => {
+      handleCloseSalon();
+      dispatch(getProfileOfSalon(token));
+    };
+    dispatch(editSalonInfo(token, submitOjb, callback));
   };
 
   return (
@@ -262,8 +440,7 @@ export default function ManageService() {
                           <p className="is-size-5 font-weight-bold">
                             Open:{" "}
                             <span className="text-danger">
-                              Mon-Sun {salon.timeOpen.slice(0, -3)} -{" "}
-                              {salon.timeClose.slice(0, -3)}
+                              Mon-Sun {salon.timeOpen} - {salon.timeClose}
                             </span>
                           </p>
                           <p>
@@ -286,7 +463,9 @@ export default function ManageService() {
                               {salon.detailAddress}
                             </span>
                           </p>
-                          <p>{salon.description}</p>
+                          <div>
+                            <span>{salon.description}</span>
+                          </div>
                         </div>
                         <div className="has-text-right mb-5 mr-5">
                           <button
@@ -310,72 +489,259 @@ export default function ManageService() {
               >
                 <Box sx={modalcss}>
                   <div>
-                    <form action="" method="post" className="editSalon">
-                      <fieldset>
-                        <div
-                          className="has-text-right"
-                          style={{ marginRight: "100px" }}
-                        >
-                          <br></br>
-                          <label className="mt-5" for="TimeOpen">
-                            Salon open time:
-                          </label>
+                    <form>
+                      <div className="form-outline mb-4">
+                        <div className="input-group">
+                          <div className="input-group-prepend">
+                            <span className="input-group-text" id="">
+                              Salon's name
+                            </span>
+                          </div>
                           <input
-                            id="TimeOpen"
-                            className="input mt-5 w-50 ml-5"
-                            style={{ height: "30px" }}
-                            type="time"
-                            placeholder="Text input"
-                          />{" "}
-                          <br></br>
-                          <label className="mt-5" for="TimeClose">
-                            Salon close time:
-                          </label>
+                            type="text"
+                            className="form-control"
+                            maxLength={40}
+                            value={businessInfo?.nameSalon}
+                            onChange={(e) => {
+                              setBusinessInfo({
+                                ...businessInfo,
+                                nameSalon: e.target.value,
+                              });
+                            }}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="form-outline mb-4">
+                        <div className="input-group">
+                          <div className="input-group-prepend">
+                            <span className="input-group-text" id="">
+                              Phone
+                            </span>
+                          </div>
                           <input
-                            id="TimeClose"
-                            className="input mt-5 w-50 ml-5"
-                            style={{ height: "30px" }}
-                            type="time"
-                            placeholder="Text input"
-                          />{" "}
-                          <br></br>
-                          <label className="mt-5" for="Description">
+                            type="text"
+                            className="form-control"
+                            maxLength={40}
+                            value={businessInfo?.phone}
+                            onChange={(e) => {
+                              setBusinessInfo({
+                                ...businessInfo,
+                                phone: e.target.value,
+                              });
+                            }}
+                          />
+                        </div>
+                        {phoneErr && (
+                          <p className="text-danger">Your phone is invalid!</p>
+                        )}
+                      </div>
+
+                      <div className="form-outline mb-4">
+                        <div className="input-group mb-3">
+                          <div className="input-group-prepend">
+                            <label
+                              className="input-group-text"
+                              htmlFor="inputGroupSelect01"
+                            >
+                              District
+                            </label>
+                          </div>
+                          <select
+                            className="custom-select"
+                            id="inputGroupSelect01"
+                            onChange={(e) => {
+                              setBusinessInfo({
+                                ...businessInfo,
+                                district: e.target.value,
+                              });
+                            }}
+                          >
+                            <option defaultValue={businessInfo?.district}>
+                              {businessInfo?.district}
+                            </option>
+                            {districts.map((district) => (
+                              <option
+                                key={district.toString()}
+                                value={district}
+                              >
+                                {district}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="input-group-prepend ml-3">
+                            <label
+                              className="input-group-text"
+                              htmlFor="inputGroupSelect02"
+                            >
+                              City
+                            </label>
+                          </div>
+                          <select
+                            className="custom-select"
+                            id="inputGroupSelect02"
+                          >
+                            <option value={businessInfo?.city}>
+                              {businessInfo?.city}
+                            </option>
+                          </select>
+                        </div>
+                      </div>
+
+                      <div className="form-outline mb-4">
+                        <div className="input-group">
+                          <div className="input-group-prepend">
+                            <span className="input-group-text" id="">
+                              Address
+                            </span>
+                          </div>
+                          <input
+                            type="text"
+                            className="form-control"
+                            maxLength={40}
+                            value={businessInfo?.detailAddress}
+                            onChange={(e) => {
+                              setBusinessInfo({
+                                ...businessInfo,
+                                detailAddress: e.target.value,
+                              });
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="form-outline mb-4">
+                        <div className="input-group mb-3">
+                          <div className="input-group-prepend">
+                            <label
+                              className="input-group-text"
+                              htmlFor="inputGroupSelect03"
+                            >
+                              Open
+                            </label>
+                          </div>
+                          <select
+                            className="custom-select"
+                            id="inputGroupSelect03"
+                            onChange={(e) => {
+                              setBusinessInfo({
+                                ...businessInfo,
+                                timeOpen: e.target.value,
+                              });
+                            }}
+                          >
+                            <option defaultValue={businessInfo?.timeOpen}>
+                              {businessInfo?.timeOpen}
+                            </option>
+                            {times.map((time) => (
+                              <option key={time.toString()} value={time}>
+                                {time}
+                              </option>
+                            ))}
+                          </select>
+                          <div className="input-group-prepend ml-3">
+                            <label
+                              className="input-group-text"
+                              htmlFor="inputGroupSelect04"
+                            >
+                              Close
+                            </label>
+                          </div>
+                          <select
+                            className="custom-select"
+                            id="inputGroupSelect04"
+                            onChange={(e) => {
+                              setBusinessInfo({
+                                ...businessInfo,
+                                timeClose: e.target.value,
+                              });
+                            }}
+                          >
+                            <option value={businessInfo?.timeClose}>
+                              {businessInfo?.timeClose}
+                            </option>
+                            {times.map((time) => (
+                              <option key={time.toString()} value={time}>
+                                {time}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      <div className="form-outline mb-4">
+                        <div className="input-group">
+                          <div className="input-group-prepend">
+                            <span className="input-group-text" id="">
+                              Salon's image
+                            </span>
+                          </div>
+                          <input
+                            type="text"
+                            className="form-control"
+                            maxLength={2000}
+                            value={businessInfo?.image}
+                            onChange={(e) => {
+                              setBusinessInfo({
+                                ...businessInfo,
+                                image: e.target.value,
+                              });
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="">
+                        <div className="form-group">
+                          <label className="font-weight-bold">
                             Description:
                           </label>
                           <textarea
-                            id="Description"
-                            style={{ resize: "none" }}
-                            className=" mt-5 w-50 ml-5"
-                            placeholder="Text input"
-                            rows="5"
-                          />{" "}
-                          <br></br>
-                          <label className="mt-5" for="picture">
-                            Salon's picture:
-                          </label>
-                          <input
-                            id="picture"
-                            className="mt-5 ml-5"
-                            type="file"
-                            accept="image/*"
+                            value={businessInfo?.description}
+                            type="text"
+                            className="form-control"
+                            maxLength={2000}
+                            onChange={(e) => {
+                              setBusinessInfo({
+                                ...businessInfo,
+                                description: e.target.value,
+                              });
+                            }}
+                            placeholder="Description for your salon"
+                            style={{ minHeight: "10rem" }}
                           />
-                        </div>{" "}
-                        <br></br>
-                        <div className="has-text-right">
-                          <button
-                            className="button is-rounded is-danger"
-                            onClick={handleCloseSalon}
-                          >
-                            {" "}
-                            Cancel
-                          </button>
-                          <input
-                            className="button is-rounded is-info ml-5"
-                            type="submit"
-                            value="Add"
-                          ></input>
                         </div>
-                      </fieldset>
+                      </div>
+
+                      <div className="text-center">
+                        {successMessage && (
+                          <p className="text-success">
+                            Edit salon info successfully
+                          </p>
+                        )}
+                        {errMessage && (
+                          <p className="text-danger">{errMessage}</p>
+                        )}
+                        {emptyError && (
+                          <p className="text-danger">
+                            Please enter all the fields
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="has-text-right">
+                        <button
+                          className="button is-rounded is-danger"
+                          onClick={handleCloseSalon}
+                        >
+                          {" "}
+                          Cancel
+                        </button>
+                        <button
+                          className="button is-rounded is-primary ml-4"
+                          onClick={handleEditSalonInfo}
+                        >
+                          {" "}
+                          Edit
+                        </button>
+                      </div>
                     </form>
                   </div>
                 </Box>
@@ -495,7 +861,7 @@ export default function ManageService() {
                               <br></br>
                               <Tooltip title="Edit" placement="right">
                                 <button
-                                  onClick={handleOpenEditService}
+                                  onClick={() => handleOpenEditService(service)}
                                   className="button mr-3 is-primary is-rounded  mt-3 is-small"
                                 >
                                   <i class="fa-solid fa-pen-to-square"></i>
@@ -714,9 +1080,12 @@ export default function ManageService() {
                               <input
                                 type="text"
                                 className="form-control form-control-lg"
-                                value={serviceName}
+                                value={serviceInfo?.name}
                                 onChange={(event) => {
-                                  setServiceName(event.target.value);
+                                  setServiceInfo({
+                                    ...serviceInfo,
+                                    name: event.target.value,
+                                  });
                                 }}
                                 placeholder="Service's name*"
                               />
@@ -729,9 +1098,12 @@ export default function ManageService() {
                                 type="text"
                                 className="form-control form-control-lg"
                                 disabled
-                                value={serviceTime}
+                                value={serviceInfo?.service_time}
                                 onChange={(event) => {
-                                  setServiceTime(event.target.value);
+                                  setServiceInfo({
+                                    ...serviceInfo,
+                                    service_time: event.target.value,
+                                  });
                                 }}
                                 placeholder="Service's time"
                               />
@@ -748,7 +1120,7 @@ export default function ManageService() {
                                   className="btn btn-outline-secondary bg-dark text-white mr-1 ml-1"
                                   type="button"
                                   style={btnTime}
-                                  onClick={addTime}
+                                  onClick={addTimeEdit}
                                 >
                                   +
                                 </button>
@@ -756,7 +1128,7 @@ export default function ManageService() {
                                   className="btn btn-outline-secondary bg-dark text-white"
                                   type="button"
                                   style={btnTime}
-                                  onClick={minusTime}
+                                  onClick={minusTimeEdit}
                                 >
                                   -
                                 </button>
@@ -771,10 +1143,13 @@ export default function ManageService() {
                                 <input
                                   type="number"
                                   className="form-control form-control-lg"
-                                  value={price}
                                   min="0"
+                                  value={serviceInfo?.price}
                                   onChange={(event) => {
-                                    setPrice(event.target.value);
+                                    setServiceInfo({
+                                      ...serviceInfo,
+                                      price: event.target.value,
+                                    });
                                   }}
                                   placeholder="Price*"
                                 />
@@ -792,9 +1167,12 @@ export default function ManageService() {
                                   type="number"
                                   className="form-control form-control-lg"
                                   min="0"
-                                  value={promotion}
+                                  value={serviceInfo?.promotion}
                                   onChange={(event) => {
-                                    setPromotion(event.target.value);
+                                    setServiceInfo({
+                                      ...serviceInfo,
+                                      promotion: event.target.value,
+                                    });
                                   }}
                                   placeholder="Promotion*"
                                 />
@@ -808,23 +1186,7 @@ export default function ManageService() {
                                 </div>
                               </div>
                             </div>
-                            <div className="row">
-                              <div className="col-6">
-                                {priceError && (
-                                  <p className="text-danger">
-                                    Price is a number greater than 0.
-                                  </p>
-                                )}
-                              </div>
-                              <div className="col-6">
-                                {promotioError && (
-                                  <p className="text-danger">
-                                    Promotion is a number greater than or equal
-                                    to 0
-                                  </p>
-                                )}
-                              </div>
-                            </div>
+
                             <div>
                               <label>Content:</label>
                             </div>
@@ -832,9 +1194,12 @@ export default function ManageService() {
                               <input
                                 type="text"
                                 className="form-control form-control-lg"
-                                value={content}
+                                value={serviceInfo?.content}
                                 onChange={(event) => {
-                                  setContent(event.target.value);
+                                  setServiceInfo({
+                                    ...serviceInfo,
+                                    content: event.target.value,
+                                  });
                                 }}
                                 placeholder="Content*"
                               />
@@ -846,9 +1211,12 @@ export default function ManageService() {
                               <input
                                 type="text"
                                 className="form-control form-control-lg"
-                                value={imageService}
+                                value={serviceInfo?.image}
                                 onChange={(event) => {
-                                  setImageService(event.target.value);
+                                  setServiceInfo({
+                                    ...serviceInfo,
+                                    image: event.target.value,
+                                  });
                                 }}
                                 placeholder="Image*"
                               />
@@ -862,12 +1230,23 @@ export default function ManageService() {
                                 cols={50}
                                 type="text"
                                 className="form-control form-control-lg"
-                                value={description}
+                                value={serviceInfo?.description}
                                 onChange={(event) => {
-                                  setDescription(event.target.value);
+                                  setServiceInfo({
+                                    ...serviceInfo,
+                                    description: event.target.value,
+                                  });
                                 }}
                                 placeholder="Description"
                               />
+                            </div>
+                            <div>
+                              {successMess && (
+                                <p className="text-success">{successMess}</p>
+                              )}
+                              {editError && (
+                                <p className="text-danger">{editError}</p>
+                              )}
                             </div>
 
                             <div className="has-text-right">
@@ -878,7 +1257,10 @@ export default function ManageService() {
                                 {" "}
                                 Cancel
                               </button>
-                              <button className="button is-rounded is-primary ml-4">
+                              <button
+                                className="button is-rounded is-primary ml-4"
+                                onClick={handleEditService}
+                              >
                                 {" "}
                                 Add
                               </button>
@@ -945,7 +1327,10 @@ export default function ManageService() {
                             156 reviews
                           </p>
                         </div>
-                        <div className="column is-9 has-text-centered mt-3" style={{ display: "inline-block"}}>
+                        <div
+                          className="column is-9 has-text-centered mt-3"
+                          style={{ display: "inline-block" }}
+                        >
                           Filter :{" "}
                           <Stack spacing={1}>
                             <Rating

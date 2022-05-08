@@ -12,9 +12,11 @@ export const updateSelectedSalonId = (salonId) => (dispatch) => {
   });
 };
 
-export const getSalonList = () => (dispatch) => {
-  return fetch(`${api}api/customer/get/AllSalon`, {
-    method: "GET",
+export const getSalonList = (nameSalon) => (dispatch) => {
+  const data = new URLSearchParams({ ...nameSalon });
+  return fetch(`${api}api/customer/searchsalon`, {
+    method: "POST",
+    body: data,
     headers: {
       "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
     },

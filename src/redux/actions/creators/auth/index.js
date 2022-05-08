@@ -191,7 +191,7 @@ const registerSalonFailed = (errMess) => {
   };
 };
 
-export const forgotPassword = (account) => (dispatch) => {
+export const forgotPassword = (account, callback) => (dispatch) => {
   const data = new URLSearchParams({
     ...account,
   });
@@ -219,13 +219,18 @@ export const forgotPassword = (account) => (dispatch) => {
       }
     )
     .then((res) => {
-      if (res.info && res.message) {
+      if (res.data?.account_name && res.message) {
         dispatch(
           forgotPasswordSuccessfully({
-            account: res.info,
+            recoveredAccount: res.data?.account_name,
             successMessage: res.message,
           })
         );
+        if (callback) {
+          setTimeout(() => {
+            callback();
+          }, 1500);
+        }
       } else {
         dispatch(registerSalonFailed(res.message));
       }

@@ -1,12 +1,26 @@
 import React, { useState, useEffect } from "react";
 import { styled } from "@mui/system";
 import CircularProgress from "@mui/material/CircularProgress";
-import { Box, Button as MuiButton, Dialog, Grid, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button as MuiButton,
+  Dialog,
+  Grid,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import DatePicker from "react-datepicker";
 import ReservationTable from "./tables/ReservationTable";
-import { getCustomerProfile, updateCustomerProfile } from "../redux/actions/creators/profile";
-import { getHistoryBooking, getReservation, resetReservationList } from "../redux/actions/creators/booking";
+import {
+  getCustomerProfile,
+  updateCustomerProfile,
+} from "../redux/actions/creators/profile";
+import {
+  getHistoryBooking,
+  getReservation,
+  resetReservationList,
+} from "../redux/actions/creators/booking";
 import { convertISOStringToLocaleDateString } from "../utils";
 import { validPhone } from "../validations/regex";
 
@@ -14,6 +28,7 @@ import introbg from "../assets/introbg-1.jpg";
 import bgImg from "../assets/barbershopbg.jpg";
 import videobg from "../assets/videobg.jpg";
 import patterbg from "../assets/patterbg.svg";
+
 
 const PageWrapper = styled(Grid)({
   backgroundColor: "#cfc787",
@@ -155,9 +170,12 @@ export default function Profile() {
   const [validationErr, setValidationErr] = useState(null);
 
   const dispatch = useDispatch();
-  const { token, account_name: username } = useSelector((state) => state.loginAccount.account);
+  const { token, account_name: username } = useSelector(
+    (state) => state.loginAccount.account
+  );
   const { info, errMess, successMess } = useSelector((state) => state.profile);
-  const { historyList, reservationList, reservationErrMess, historyErrMess } = useSelector((state) => state.historyBooking);
+  const { historyList, reservationList, reservationErrMess, historyErrMess } =
+    useSelector((state) => state.historyBooking);
 
   useEffect(() => {
     dispatch(getCustomerProfile(token));
@@ -179,6 +197,17 @@ export default function Profile() {
     setDialogOpen(false);
   };
 
+  const handleReservationTab = () => {
+    setSelectedTab(0);
+    dispatch(reservationList())
+    dispatch(getReservation(token))
+  };
+
+  const handleHistoryTab = () => {
+    setSelectedTab(1);    
+    dispatch(getHistoryBooking(token))
+  };
+
   return (
     <>
       <PageWrapper container spacing={2}>
@@ -191,7 +220,8 @@ export default function Profile() {
                   <b>Name:</b> {info?.nameCustomer}
                 </UserInfoText>
                 <UserInfoText>
-                  <b>Birthday:</b> {convertISOStringToLocaleDateString(info?.birthday)}
+                  <b>Birthday:</b>{" "}
+                  {convertISOStringToLocaleDateString(info?.birthday)}
                 </UserInfoText>
                 <UserInfoText>
                   <b>Phone number:</b> {info?.phone}
@@ -200,7 +230,11 @@ export default function Profile() {
                   <b>Address:</b> {info?.address}
                 </UserInfoText>
                 <ButtonWrapper>
-                  <ActionButton width={180} variant="contained" onClick={() => setDialogOpen(true)}>
+                  <ActionButton
+                    width={180}
+                    variant="contained"
+                    onClick={() => setDialogOpen(true)}
+                  >
                     Edit
                   </ActionButton>
                 </ButtonWrapper>
@@ -223,12 +257,18 @@ export default function Profile() {
           <ReservationHistory>
             <Tabs container>
               <Grid item xs={6}>
-                <Tab selected={selectedTab === 0} onClick={() => setSelectedTab(0)}>
+                <Tab
+                  selected={selectedTab === 0}
+                  onClick={handleReservationTab}
+                >
                   Reservation
                 </Tab>
               </Grid>
               <Grid item xs={6}>
-                <Tab selected={selectedTab === 1} onClick={() => setSelectedTab(1)}>
+                <Tab
+                  selected={selectedTab === 1}
+                  onClick={handleHistoryTab}
+                >
                   History
                 </Tab>
               </Grid>
@@ -237,10 +277,14 @@ export default function Profile() {
               (reservationList?.length > 0 ? (
                 <>
                   <ReservationTable data={reservationList} />
-                  {reservationErrMess && <ErrorText>{reservationErrMess}</ErrorText>}
+                  {reservationErrMess && (
+                    <ErrorText>{reservationErrMess}</ErrorText>
+                  )}
                 </>
               ) : (
-                <Loading />
+                <UserInfoText className="text-center">
+                  You don't have any reservation
+                </UserInfoText>
               ))}
             {selectedTab === 1 &&
               (historyList?.length > 0 ? (

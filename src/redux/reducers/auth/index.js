@@ -1,4 +1,5 @@
 import * as AuthActionTypes from "../../actions/types/auth";
+import * as BookingActionTypes from "../../actions/types/booking";
 
 export const LoginAccount = (
   state = {
@@ -86,6 +87,13 @@ export const ForgotPassword = (
         recoveredAccount: action.payload.account,
         errMess: null,
         successMessage: action.payload.successMessage,
+      };
+      case BookingActionTypes.GET_SALON_LIST_SUCCESSFULLY:
+      return {
+        ...state,
+        recoveredAccount: null,
+        errMess: null,
+        successMessage: null,
       };
     default:
       return state;

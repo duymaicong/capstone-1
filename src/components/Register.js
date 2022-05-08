@@ -147,9 +147,9 @@ export default function Register() {
 
   //render screen
   return (
-    <div className="card bg-transparent" style={root}>
+    <div className=" bg-transparent" style={root}>
       <div>
-        <h2 className="fw-normal mb-3 pb-3" style={{ letterSpacing: "1px" }}>
+        <h2 className="fw-normal mb-3 pb-3" style={{ letterSpacing: "1px",fontSize:"2.2rem",fontWeight:"bold" }}>
           User Registration
         </h2>
       </div>

@@ -22,8 +22,17 @@ import {
   ListService,
   ProfileSalon,
   AddNewService,
-  EditStaff
+  EditStaff,
+  EditService,
+  EditBusinessInfo,
+  EditSalonInfo,
 } from "../reducers/salon";
+import {
+  ListSalonActive,
+  ListSalonDeactive,
+  ListSalonRequest,
+} from "../reducers/admin";
+
 import { Profile } from "../reducers/profile";
 import { persistStore, persistReducer } from "redux-persist";
 import storageSession from "redux-persist/lib/storage/session";
@@ -58,7 +67,14 @@ const rootReducer = combineReducers({
   listServiceSalon: ListService,
   profileSalon: ProfileSalon,
   addNewService: AddNewService,
-  editStaffProfile: EditStaff
+  editStaffProfile: EditStaff,
+  editService: EditService,
+  editBusinessInfo: EditBusinessInfo,
+  editSalonInfo: EditSalonInfo,
+  //admin
+  litSalonActivated: ListSalonActive,
+  listSalonDeactive: ListSalonDeactive,
+  listSalonRequest: ListSalonRequest,
 });
 
 export const ConfigureStore = () => {

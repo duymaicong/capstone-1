@@ -16,6 +16,7 @@ export default function Login() {
     backgroundImage: `url(${bgImg})`,
     backgroundRepeat: "no-repeat",
     backgroundSize: "cover",
+    minHeight:"40rem"
   };
   const loginStyle = {
     backgroundColor: "rgba(0,0,0,0)",
@@ -28,7 +29,7 @@ export default function Login() {
         <div className="container py-5">
           <div className="row d-flex justify-content-center align-items-center h-100">
             <div className="col col-xl-10">
-              <div className="card" style={loginStyle}>
+              <div className="" style={loginStyle}>
                 <div className="row g-0">
                   <div className="col-md-6 col-lg-5 d-none d-md-block"></div>
                   <div className="col-md-6 col-lg-7 d-flex align-items-center">
@@ -36,7 +37,11 @@ export default function Login() {
                       <form>
                         <h2
                           className="fw-normal mb-3 pb-3"
-                          style={{ letterSpacing: "1px" }}
+                          style={{
+                            letterSpacing: "1px",
+                            fontSize: "2.2rem",
+                            fontWeight: "bold",
+                          }}
                         >
                           Sign into your account
                         </h2>
@@ -85,7 +90,10 @@ export default function Login() {
                           </button>
                         </div>
 
-                        <Link className="small text-primary" to="/forgot_password">
+                        <Link
+                          className="small text-primary"
+                          to="/forgot_password"
+                        >
                           Forgot password?
                         </Link>
                         <p className="pt-2">

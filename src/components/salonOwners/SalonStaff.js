@@ -102,7 +102,7 @@ export default function SalonDashboard() {
       title,
     };
     const successCallback = () => {
-      dispatch(resetListStaffOfSalon);
+      dispatch(resetListStaffOfSalon());
       setNewStaffInfo(null);
       handleCloseEdit();
       dispatch(getListStaffForSalon(token));

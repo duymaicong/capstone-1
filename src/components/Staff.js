@@ -136,8 +136,8 @@ export default function Staff() {
                     <p className="is-size-4" style={{ color: "white" }}>
                       Open:{" "}
                       <span className="text-danger">
-                        Mon-Sun {salon.timeOpen.slice(0, -3)} -{" "}
-                        {salon.timeClose.slice(0, -3)}
+                        Mon-Sun {salon.timeOpen} -{" "}
+                        {salon.timeClose}
                       </span>
                     </p>
                     <p className="is-size-4 " style={{ color: "white" }}>

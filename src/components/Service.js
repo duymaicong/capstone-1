@@ -20,6 +20,27 @@ import TabPanel from "@mui/lab/TabPanel";
 import Box from "@mui/material/Box";
 import { Modal } from "@mui/material";
 
+// CSS
+const root = {
+  backgroundImage: `url(${bgImg})`,
+  backgroundRepeat: "repeat-y",
+  backgroundSize: "100%",
+  minHeight: "40rem",
+};
+// -- MODAL CSS --
+const modalcss = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 800,
+  bgcolor: "background.paper",
+  border: "2px solid #000",
+  borderRadius: "25px",
+  boxShadow: 24,
+  p: 4,
+};
+
 export default function Service() {
   // FAKE DATA
   // const fakeServiceList = serviceLists;
@@ -38,26 +59,7 @@ export default function Service() {
     };
   }, [dispatch, salonId]);
 
-  // CSS
-  const root = {
-    backgroundImage: `url(${bgImg})`,
-    backgroundRepeat: "repeat-y",
-    backgroundSize: "100%",
-    minHeight: "40rem",
-  };
-  // -- MODAL CSS --
-  const modalcss = {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    width: 800,
-    bgcolor: "background.paper",
-    border: "2px solid #000",
-    borderRadius: "25px",
-    boxShadow: 24,
-    p: 4,
-  };
+  
 
   // -- TABS --
   const [value, setValue] = React.useState("1");
@@ -111,8 +113,8 @@ export default function Service() {
                         <p className="is-size-5 font-weight-bold">
                           Open:{" "}
                           <span className="text-danger">
-                            Mon-Sun {salon.timeOpen.slice(0, -3)} -{" "}
-                            {salon.timeClose.slice(0, -3)}
+                            Mon-Sun {salon.timeOpen} -{" "}
+                            {salon.timeClose}
                           </span>
                         </p>
                         <p>
