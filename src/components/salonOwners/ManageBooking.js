@@ -248,6 +248,7 @@ export default function Staff() {
                     placeholder="Customer's name / phone number"
                     rows="10"
                     cols="35"
+                    maxlength="450"
                   ></textarea>
                 </div>
               </div>
