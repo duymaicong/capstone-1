@@ -1,13 +1,22 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
+import { Rating } from "@mui/material";
 import {
   getServiceList,
   resetServiceList,
   updateSelectedService,
 } from "../redux/actions/creators/booking";
-import { currencyFormatter } from "../utils";
+import {
+  getReviewOfSalon,
+  getVoteOfSalon,
+} from "../redux/actions/creators/customer";
 
+import {
+  convertISOStringToLocaleTimeString,
+  currencyFormatter,
+  convertISOStringToLocaleDateString,
+} from "../utils";
 import bgImg from "../assets/barbershopbg.jpg";
 import paperbg from "../assets/paperbg.jpg";
 import imageUnavailable from "../assets/image-unavailable.png";
@@ -46,6 +55,20 @@ export default function Service() {
   // const fakeServiceList = serviceLists;
   const fakeReview = fakeReviews;
 
+    // search review by star
+    const [starSearch, setStar] = useState("");
+
+      // -- RATING --
+  const [valueRating, setValueRating] = React.useState(2);
+
+    const handleGetReviewByStar = (e) => {
+      e.preventDefault();
+      var star=e.target.value;
+      console.log(star)
+      dispatch(getReviewOfSalon({salonId:1, star:star}));
+     
+    };
+
   // API DATA
   const [type, setType] = useState("Services");
   console.log(type);
@@ -57,6 +80,23 @@ export default function Service() {
     return () => {
       dispatch(resetServiceList());
     };
+  }, [dispatch, salonId]);
+
+
+
+  // -- Get vote of salon
+  const { voteOfSalon } = useSelector((state) => state.voteOfSalon);
+
+  useEffect(() => {
+    dispatch(getVoteOfSalon({salonId:1}));
+  }, [dispatch, salonId]);
+
+  // -- Get review of salon
+  const { reviewOfSalon } = useSelector((state) => state.reviewOfSalon);
+
+  useEffect(() => {
+    dispatch(getReviewOfSalon({salonId:1,star:starSearch}));
+    
   }, [dispatch, salonId]);
 
   
@@ -276,36 +316,91 @@ export default function Service() {
                         Write review
                       </button>
                     </div>
-                    {fakeReview?.map((review) => (
-                      <div
-                        className="m-4  "
-                        style={{
-                          backgroundColor: "white",
-                          height: "10rem",
-                          borderRadius: "25px",
-                        }}
-                      >
-                        <h1 className="ml-3 is-size-4">
-                          <span className="is-size-3 mt-5 has-text-weight-semibold">
-                            {review.nameCustomer}{" "}
-                          </span>
-                          - {review.wsend}
-                        </h1>
-                        <p className="ml-3 is-size-5"> {review.dateCreate}</p>
-                        <hr
-                          className="solid"
-                          style={{
-                            width: "95%",
-                            marginTop: 5,
-                            marginLeft: 10,
-                            marginBottom: 0,
-                            borderTop: 1 + "px solid grey",
-                            opacity: 60 + "%",
-                          }}
-                        />
-                        <p className="ml-3"> {review.conntent}</p>
+                    <div className=" columns,mx-auto mb-4">
+                     
+                          <div className="column is-9 has-text-left mt-3">
+                          <p>{starSearch}</p>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
+                          onClick={handleGetReviewByStar} value="5">
+                            5
+                          </button>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
+                           onClick={handleGetReviewByStar} value="4">
+                            4
+                          </button>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
+                           onClick={handleGetReviewByStar} value="3">
+                            3
+                          </button>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
+                           onClick={handleGetReviewByStar} value="2">
+                            2
+                          </button>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium"
+                           onClick={handleGetReviewByStar} value="1">
+                            1
+                          </button>
+                        </div>
+                       
+                        <div
+                          className="column is-9 has-text-centered mt-3"
+                          style={{ display: "inline-block" }}
+                        >
+                          
+                         
+                          
+                        </div>
+                        
                       </div>
-                    ))}
+                      <hr
+                        style={{
+                          backgroundColor: "grey",
+                          margin: "0px",
+                          height: "1px",
+                          opacity: "60%",
+                        }}
+                      ></hr>
+                    {reviewOfSalon?.map((review) => (
+                       
+                        
+                       <div
+                         className="m-4  "
+                         style={{
+                           backgroundColor: "white",
+                           height: "10rem",
+                           borderRadius: "25px",
+                         }}
+                       >
+                         <h1 className="ml-3 is-size-4">
+                         {review.nameCustomer}
+                           - {review.wsend}
+                         </h1>
+                         <p className="ml-3 is-size-5"> 
+                         {review.rate/2}
+                         <Rating
+                                name="half-rating-read"
+                                defaultValue={review.rate/2}
+                                precision={0.1}
+                                readOnly
+                              />
+                         </p>
+                         <p className="ml-3 is-size-5"> 
+                         {convertISOStringToLocaleDateString(review.dateCreate)}
+                         </p>
+                         <hr
+                           className="solid"
+                           style={{
+                             width: "95%",
+                             marginTop: 5,
+                             marginLeft: 10,
+                             marginBottom: 0,
+                             borderTop: 1 + "px solid grey",
+                             opacity: 60 + "%",
+                           }}
+                         />
+                         <p className="ml-3"> {review.content}</p>
+                       </div>
+                     ))}
                   </div>
                   {/* Modal review */}
                   <Modal

@@ -16,8 +16,14 @@ import {
   deleteService,
   editService,
   editSalonInfo,
+  getVoteOfSalon,
+  getReviewOfSalon,
 } from "../../redux/actions/creators/salon";
-import { currencyFormatter } from "../../utils";
+import {
+  convertISOStringToLocaleTimeString,
+  currencyFormatter,
+  convertISOStringToLocaleDateString,
+} from "../../utils";
 import imageUnavailable from "../../assets/image-unavailable.png";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../redux/actions/creators/auth";
@@ -63,6 +69,17 @@ export default function ManageService() {
   const [content, setContent] = useState("");
   const [description, setDescription] = useState("");
   const [imageService, setImageService] = useState("");
+
+  // search review by star
+  const [starSearch, setStar] = useState("");
+
+  const handleGetReviewByStar = (e) => {
+    e.preventDefault();
+    var star=e.target.value;
+    console.log(star)
+    dispatch(getReviewOfSalon(token,{ star:star}));
+   
+  };
 
   //create state for error
   const [error, setError] = useState(false);
@@ -194,6 +211,21 @@ export default function ManageService() {
 
   useEffect(() => {
     dispatch(getProfileOfSalon(token));
+  }, [dispatch, token]);
+
+  // -- Get vote of salon
+  const { voteOfSalon } = useSelector((state) => state.voteOfSalon);
+
+  useEffect(() => {
+    dispatch(getVoteOfSalon(token));
+  }, [dispatch, token]);
+
+  // -- Get review of salon
+  const { reviewOfSalon } = useSelector((state) => state.reviewOfSalon);
+
+  useEffect(() => {
+    dispatch(getReviewOfSalon(token,{star:starSearch}));
+    
   }, [dispatch, token]);
 
   // -- TABS --
@@ -1305,115 +1337,60 @@ export default function ManageService() {
                   </TabPanel>
                   <TabPanel value="2">
                     <div>
-                      <div className=" columns">
-                        <div className="column is-3 has-text-centered">
-                          <p className="has-text-info">
-                            {" "}
-                            <Stack spacing={1}>
-                              <span className="is-size-4 has-text-weight-semibold">
-                                4.5
-                              </span>
-                              <br></br>
+                      <div className=" columns,mx-auto mb-4">
+                      {voteOfSalon?.map((vote) => (
+                            <p className="has-text-info">
 
+                              {" "}
+
+                              <span className="is-size-4 has-text-weight-semibold">
+                                {vote.AverangeVote}
+                              </span>
                               <Rating
                                 name="half-rating-read"
-                                defaultValue={2.5}
-                                precision={0.5}
+                                defaultValue={vote.AverangeVote}
+                                precision={0.1}
                                 readOnly
                               />
-                            </Stack>
-                            <br></br>
-                            out of 5 <br></br>
-                            156 reviews
-                          </p>
+                              
+                              <br></br>
+                              out of 5<br></br>
+                              {vote.TotalVote} reviews
+                            </p>
+                          ))}
+                          <div className="column is-9 has-text-left mt-3">
+                          <p>{starSearch}</p>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
+                          onClick={handleGetReviewByStar} value="5">
+                            5
+                          </button>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
+                           onClick={handleGetReviewByStar} value="4">
+                            4
+                          </button>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
+                           onClick={handleGetReviewByStar} value="3">
+                            3
+                          </button>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
+                           onClick={handleGetReviewByStar} value="2">
+                            2
+                          </button>
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium"
+                           onClick={handleGetReviewByStar} value="1">
+                            1
+                          </button>
                         </div>
+                       
                         <div
                           className="column is-9 has-text-centered mt-3"
                           style={{ display: "inline-block" }}
                         >
-                          Filter :{" "}
-                          <Stack spacing={1}>
-                            <Rating
-                              name="simple-controlled"
-                              value={valueRating}
-                              defaultValue={2.5}
-                              precision={0.5}
-                              onChange={(event, newValue) => {
-                                setValueRating(newValue);
-                              }}
-                            />
-                          </Stack>
-                          {/*   <button
-                            style={{
-                              border: " 1px solid darkblue",
-                              borderRadius: "50%",
-                              height: "70px",
-                            }}
-                            className="button  is-link is-light mr-4 is-medium"
-                          >
-                            5
-                            <i
-                              class="fa-solid fa-star"
-                              style={{ color: "gold" }}
-                            ></i>
-                          </button>
-                          <button
-                            style={{
-                              border: " 1px solid darkblue",
-                              borderRadius: "50%",
-                              height: "70px",
-                            }}
-                            className="button  is-link is-light mr-4 is-medium"
-                          >
-                            4
-                            <i
-                              class="fa-solid fa-star"
-                              style={{ color: "gold" }}
-                            ></i>
-                          </button>
-                          <button
-                            style={{
-                              border: " 1px solid darkblue",
-                              borderRadius: "50%",
-                              height: "70px",
-                            }}
-                            className="button  is-link is-light mr-4 is-medium"
-                          >
-                            3
-                            <i
-                              class="fa-solid fa-star"
-                              style={{ color: "gold" }}
-                            ></i>
-                          </button>
-                          <button
-                            style={{
-                              border: " 1px solid darkblue",
-                              borderRadius: "50%",
-                              height: "70px",
-                            }}
-                            className="button  is-link is-light mr-4 is-medium"
-                          >
-                            2
-                            <i
-                              class="fa-solid fa-star"
-                              style={{ color: "gold" }}
-                            ></i>
-                          </button>
-                          <button
-                            style={{
-                              border: " 1px solid darkblue",
-                              borderRadius: "50%",
-                              height: "70px",
-                            }}
-                            className="button  is-link is-light mr-4 is-medium"
-                          >
-                            1
-                            <i
-                              class="fa-solid fa-star"
-                              style={{ color: "gold" }}
-                            ></i>
-                          </button>*/}
+                          
+                         
+                          
                         </div>
+                        
                       </div>
                       <hr
                         style={{
@@ -1423,36 +1400,47 @@ export default function ManageService() {
                           opacity: "60%",
                         }}
                       ></hr>
-                      {fakeReview?.map((review) => (
-                        <div
-                          className="m-4  "
-                          style={{
-                            backgroundColor: "white",
-                            height: "10rem",
-                            borderRadius: "25px",
-                          }}
-                        >
-                          <h1 className="ml-3 is-size-4">
-                            <span className="is-size-3 mt-5 has-text-weight-semibold">
-                              {review.nameCustomer}{" "}
-                            </span>
-                            - {review.wsend}
-                          </h1>
-                          <p className="ml-3 is-size-5"> {review.dateCreate}</p>
-                          <hr
-                            className="solid"
-                            style={{
-                              width: "95%",
-                              marginTop: 5,
-                              marginLeft: 10,
-                              marginBottom: 0,
-                              borderTop: 1 + "px solid grey",
-                              opacity: 60 + "%",
-                            }}
-                          />
-                          <p className="ml-3"> {review.conntent}</p>
-                        </div>
-                      ))}
+                     {reviewOfSalon?.map((review) => (
+                       
+                        
+                       <div
+                         className="m-4  "
+                         style={{
+                           backgroundColor: "white",
+                           height: "10rem",
+                           borderRadius: "25px",
+                         }}
+                       >
+                         <h1 className="ml-3 is-size-4">
+                         {review.nameCustomer}
+                           - {review.wsend}
+                         </h1>
+                         <p className="ml-3 is-size-5"> 
+                         {review.rate/2}
+                         <Rating
+                                name="half-rating-read"
+                                defaultValue={review.rate/2}
+                                precision={0.1}
+                                readOnly
+                              />
+                         </p>
+                         <p className="ml-3 is-size-5"> 
+                         {convertISOStringToLocaleDateString(review.dateCreate)}
+                         </p>
+                         <hr
+                           className="solid"
+                           style={{
+                             width: "95%",
+                             marginTop: 5,
+                             marginLeft: 10,
+                             marginBottom: 0,
+                             borderTop: 1 + "px solid grey",
+                             opacity: 60 + "%",
+                           }}
+                         />
+                         <p className="ml-3"> {review.content}</p>
+                       </div>
+                     ))}
                     </div>
                   </TabPanel>
                 </TabContext>

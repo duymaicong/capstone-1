@@ -291,3 +291,47 @@ export const EditSalonInfo = (
       return state;
   }
 };
+export const VoteOfSalon = (
+  state = {
+    voteOfSalon: null,
+    errMess: null,
+  },
+  action
+) => {
+  switch (action.type) {
+    case SalonActionTypes.GET_VOTE_FOR_SALON_FAILED:
+      return { ...state, voteOfSalon: null, errMess: action.payload.errMess };
+    case SalonActionTypes.GET_VOTE_FOR_SALON_SUCCESSFULLY:
+      return {
+        ...state,
+        voteOfSalon: action.payload.voteOfSalon,
+        errMess: null,
+      };
+
+    default:
+      return state;
+  }
+};
+
+
+export const ReviewOfSalon = (
+  state = {
+    reviewOfSalon: null,
+    errMess: null,
+  },
+  action
+) => {
+  switch (action.type) {
+    case SalonActionTypes.GET_REVIEW_FOR_SALON_FAILED:
+      return { ...state, reviewOfSalon: null, errMess: action.payload.errMess };
+    case SalonActionTypes.GET_REVIEW_FOR_SALON_SUCCESSFULLY:
+      return {
+        ...state,
+        reviewOfSalon: action.payload.reviewOfSalon,
+        errMess: null,
+      };
+
+    default:
+      return state;
+  }
+};

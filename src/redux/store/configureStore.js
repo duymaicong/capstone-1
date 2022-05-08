@@ -8,6 +8,10 @@ import {
   ForgotPassword,
 } from "../reducers/auth";
 import {
+  ReviewOfSalonByCustomer,
+  VoteOfSalonByCustomer,
+} from "../reducers/customer";
+import {
   Booking,
   Salon,
   Service,
@@ -26,6 +30,8 @@ import {
   EditService,
   EditBusinessInfo,
   EditSalonInfo,
+  VoteOfSalon,
+  ReviewOfSalon,
 } from "../reducers/salon";
 import {
   ListSalonActive,
@@ -71,10 +77,16 @@ const rootReducer = combineReducers({
   editService: EditService,
   editBusinessInfo: EditBusinessInfo,
   editSalonInfo: EditSalonInfo,
+  voteOfSalon:VoteOfSalon,
+  reviewOfSalon:ReviewOfSalon,
   //admin
   litSalonActivated: ListSalonActive,
   listSalonDeactive: ListSalonDeactive,
   listSalonRequest: ListSalonRequest,
+
+  //customer
+  voteOfSalonByCustomer:VoteOfSalonByCustomer,
+  reviewOfSalonByCustomer:ReviewOfSalonByCustomer,
 });
 
 export const ConfigureStore = () => {
