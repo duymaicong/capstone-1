@@ -8,6 +8,7 @@ import {
   getListServiceForSalon,
   resetListServiceOfSalon,
 } from "../../redux/actions/creators/salon";
+import { FormControl, RadioGroup,FormControlLabel,Radio } from "@mui/material";
 import moment from "moment";
 import introbg from "../../assets/introbg-1.jpg";
 import videobg from "../../assets/videobg.jpg";
@@ -98,73 +99,94 @@ export default function Staff() {
       <div className="columns">
         <div className="column is-1"></div>
         <div className="column is-10">
-          {listService?.map((service) => (
-            <div
-              className="card mb-3 mt-3"
-              style={{
-                display: "inline-block",
-                marginRight: "2%",
-                width: "48%",
-                backgroundColor: " #F5F3ED",
-                height: "12rem",
-                borderRadius: "25px",
-              }}
-              key={service.serviceId}
+          <FormControl>
+            <RadioGroup
+              aria-labelledby="radio-buttons-group-label"
+              defaultValue="0"
+              name="radio-buttons-group"
             >
-              <div className="columns">
-                <div className="column is-4">
-                  <img
-                    src={service.image ? service.image : imageUnavailable}
-                    alt="..."
-                    style={{
-                      height: "100%",
-                      width: "100%  ",
-                      maxHeight: "12rem",
-                      borderRadius: "25px",
-                    }}
-                  />
-                </div>
-                <div className="column is-8 has-text-left">
-                  <div>
-                    <h4 className="has-text-info-dark is-size-3 has-text-weight-bold">
-                      {service.name}
-                    </h4>
-                    <p className="has-text-dark is-size-5">
-                      {service.service_time} minutes
-                    </p>
+              <div className="rows">
+              {listService?.map((service) => (
+                <div
+                  className="card mb-3 mt-3 col-6"
+                  style={{
+                    display: "inline-block",
+                    marginRight: "2%",
+                    width: "48%",
+                    backgroundColor: " #F5F3ED",
+                    height: "12rem",
+                    borderRadius: "25px",
+                  }}
+                  key={service.serviceId}
+                >
+                  <div className="columns">
+                    {/* <div className="column is-4">
+                      <img
+                        src={service.image ? service.image : imageUnavailable}
+                        alt="..."
+                        style={{
+                          height: "100%",
+                          width: "100%  ",
+                          maxHeight: "12rem",
+                          borderRadius: "25px",
+                        }}
+                      />
+                    </div> */}
+                    <div className="column is-1">
+                    <FormControlLabel
+                        value={service.serviceId}
+                        control={<Radio />}
+                        label=""
+                      />
+                    </div>
+                    <div className="column is-11 has-text-left">
+                      <div>
+                        
+                        <h4 className="has-text-info-dark is-size-3 has-text-weight-bold">
+                          {service.name}
+                        </h4>
+                        <p className="has-text-dark is-size-5">
+                          {service.service_time} minutes
+                        </p>
 
-                    {service.promotion === 0 && (
-                      <p className="has-text-danger has-text-weight-semibold">
-                        {" "}
-                        {currencyFormatter.format(service.price)}{" "}
-                      </p>
-                    )}
+                        {service.promotion === 0 && (
+                          <p className="has-text-danger has-text-weight-semibold">
+                            {" "}
+                            {currencyFormatter.format(service.price)}{" "}
+                          </p>
+                        )}
 
-                    {service.promotion !== 0 && (
-                      <p className="has-text-grey-light has-text-weight-semibold">
-                        <del> {currencyFormatter.format(service.price)} </del>
+                        {service.promotion !== 0 && (
+                          <p className="has-text-grey-light has-text-weight-semibold">
+                            <del>
+                              {" "}
+                              {currencyFormatter.format(service.price)}{" "}
+                            </del>
 
-                        <span className="has-text-danger-dark has-text-weight-semibold">
-                          {" "}
-                          {currencyFormatter.format(
-                            service.price -
-                              (service.price / 100) * service.promotion
-                          )}{" "}
-                        </span>
-                        <span className="tag is-danger has-text-weight-semibold">
-                          {" "}
-                          {service.promotion} %
-                        </span>
-                      </p>
-                    )}
+                            <span className="has-text-danger-dark has-text-weight-semibold">
+                              {" "}
+                              {currencyFormatter.format(
+                                service.price -
+                                  (service.price / 100) * service.promotion
+                              )}{" "}
+                            </span>
+                            <span className="tag is-danger has-text-weight-semibold">
+                              {" "}
+                              {service.promotion} %
+                            </span>
+                          </p>
+                        )}
 
-                    <p className="">{service.content}</p>
-                    <p className="">{service.description}</p>
+                        <p className="">{service.content}</p>
+                        <p className="">{service.description}</p>
+                      </div>
+                    </div>
+                   
                   </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              ))}</div>
+            </RadioGroup>
+          </FormControl>
           <div
             className="mb-5 pt-5"
             style={{

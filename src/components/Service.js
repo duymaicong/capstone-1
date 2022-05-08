@@ -372,6 +372,7 @@ export default function Service() {
                          }}
                        >
                          <h1 className="ml-3 is-size-4">
+                         {review.salonId}
                          {review.nameCustomer}
                            - {review.wsend}
                          </h1>
