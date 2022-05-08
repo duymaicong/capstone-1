@@ -1036,6 +1036,7 @@ export default function ManageService() {
                             </div>
                             <div className="form-outline mb-4">
                               <input
+                                maxLength={40}
                                 type="text"
                                 className="form-control form-control-lg"
                                 value={content}
@@ -1050,6 +1051,7 @@ export default function ManageService() {
                             </div>
                             <div className="form-outline mb-4">
                               <input
+                                maxLength={2000}
                                 type="text"
                                 className="form-control form-control-lg"
                                 value={imageService}
@@ -1064,6 +1066,7 @@ export default function ManageService() {
                             </div>
                             <div className="form-outline mb-4">
                               <textarea
+                                maxLength={200}
                                 rows={4}
                                 cols={50}
                                 type="text"
@@ -1111,6 +1114,7 @@ export default function ManageService() {
                             <div className="form-outline mb-4">
                               <input
                                 type="text"
+                                maxLength={40}
                                 className="form-control form-control-lg"
                                 value={serviceInfo?.name}
                                 onChange={(event) => {
@@ -1224,6 +1228,7 @@ export default function ManageService() {
                             </div>
                             <div className="form-outline mb-4">
                               <input
+                                maxLength={40}
                                 type="text"
                                 className="form-control form-control-lg"
                                 value={serviceInfo?.content}
@@ -1241,6 +1246,7 @@ export default function ManageService() {
                             </div>
                             <div className="form-outline mb-4">
                               <input
+                                maxLength={2000}
                                 type="text"
                                 className="form-control form-control-lg"
                                 value={serviceInfo?.image}
@@ -1258,6 +1264,7 @@ export default function ManageService() {
                             </div>
                             <div className="form-outline mb-4">
                               <textarea
+                                maxLength={200}
                                 rows={4}
                                 cols={50}
                                 type="text"
