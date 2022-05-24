@@ -10,6 +10,9 @@ import {
 import {
   getReviewOfSalon,
   getVoteOfSalon,
+  resetReviewOfSalon,
+  resetVoteOfSalon,
+  addFeedBack,
 } from "../redux/actions/creators/customer";
 
 import {
@@ -61,16 +64,24 @@ export default function Service() {
       // -- RATING --
   const [valueRating, setValueRating] = React.useState(2);
 
+  //create state for create feedback by customer
+  const [star, setSta] = useState(1);
+  const [content, setContent] = useState("");
+
     const handleGetReviewByStar = (e) => {
       e.preventDefault();
       var star=e.target.value;
+
       console.log(star)
-      dispatch(getReviewOfSalon({salonId:1, star:star}));
+      dispatch(getReviewOfSalon({salonId:salonId, star:star}));
      
     };
 
   // API DATA
   const [type, setType] = useState("Services");
+  const { token, account_name: username } = useSelector(
+    (state) => state.loginAccount.account
+  );
   console.log(type);
   const { serviceList } = useSelector((state) => state.service);
   const { salonId } = useParams();
@@ -88,16 +99,58 @@ export default function Service() {
   const { voteOfSalon } = useSelector((state) => state.voteOfSalon);
 
   useEffect(() => {
-    dispatch(getVoteOfSalon({salonId:1}));
+    dispatch(getVoteOfSalon({salonId:salonId}));
   }, [dispatch, salonId]);
 
   // -- Get review of salon
   const { reviewOfSalon } = useSelector((state) => state.reviewOfSalon);
 
   useEffect(() => {
-    dispatch(getReviewOfSalon({salonId:1,star:starSearch}));
+    dispatch(getReviewOfSalon({salonId:salonId,star:starSearch}));
     
   }, [dispatch, salonId]);
+  //create state for error
+  const [error, setError] = useState(false);
+
+  //reset form
+  const resetAddFeedback = () => {
+    setSta(1);
+    setContent("");
+  };
+
+  // -- add comment
+  const handleAddReview = (e) =>{
+    e.preventDefault();
+    setError(false);
+    let pass = true;
+    if (
+      content === ""
+    ) {
+      setError(true);
+      pass = false;
+      return;
+    }
+   const infor={
+      rate:star*2,
+      content:content,
+      salonId:salonId,
+
+    }
+    if (pass) {
+      console.log(infor);
+      resetAddFeedback();
+      const successCallback = () => {
+        console.log("success callback");
+        setStar("")
+        dispatch(resetVoteOfSalon());
+        dispatch(resetReviewOfSalon());
+        handleCloseReview();
+        dispatch(getReviewOfSalon({salonId:salonId,star:starSearch}));
+        dispatch(getVoteOfSalon({salonId:salonId}))
+      };
+      dispatch(addFeedBack(token, infor, successCallback));
+    }
+  };
 
   
 
@@ -319,7 +372,27 @@ export default function Service() {
                     <div className=" columns,mx-auto mb-4">
                      
                           <div className="column is-9 has-text-left mt-3">
-                          <p>{starSearch}</p>
+                          {voteOfSalon?.map((vote) => (
+                            <p className="has-text-info">
+
+                              {" "}
+
+                              <span className="is-size-4 has-text-weight-semibold">
+                                {(vote.AverangeVote).toFixed(1)}
+                              </span>
+                              <Rating
+                                name="half-rating-read"
+                                value={vote.AverangeVote}
+                                precision={0.1}
+                                readOnly
+                              />
+                              
+                              <br></br>
+                              out of 5<br></br>
+                              {vote.TotalVote} reviews
+                            </p>
+                          ))}
+
                           <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
                           onClick={handleGetReviewByStar} value="5">
                             5
@@ -379,7 +452,7 @@ export default function Service() {
                          {review.rate/2}
                          <Rating
                                 name="half-rating-read"
-                                defaultValue={review.rate/2}
+                                value={review.rate/2}
                                 precision={0.1}
                                 readOnly
                               />
@@ -420,13 +493,13 @@ export default function Service() {
                               <label className="mt-5" for="vote">
                                 rate the salon:
                               </label>
-                              <input
-                                id="vote"
-                                className="input mt-5 w-50 ml-5"
-                                style={{ height: "30px" }}
-                                type="text"
-                                placeholder="Text input"
-                              />{" "}
+                              <Rating
+                                name="half-rating-read"
+                                onClick={(event) => {
+                                  setSta(event.target.value);
+                                }}
+                              />
+                              {" "}
                               <br></br>
                               <label className="mt-5" for="content">
                                 Write your review:
@@ -437,6 +510,10 @@ export default function Service() {
                                 className=" mt-5 w-50 ml-5"
                                 placeholder="Text input"
                                 rows="5"
+                                value={content}
+                                onChange={(event) => {
+                                  setContent(event.target.value);
+                                }}
                               />{" "}
                               <br></br>
                             </div>{" "}
@@ -449,11 +526,14 @@ export default function Service() {
                                 {" "}
                                 Cancel
                               </button>
-                              <input
+                              <button
                                 className="button is-rounded is-info ml-5"
-                                type="submit"
-                                value="Add"
-                              ></input>
+                                onClick={handleAddReview}
+                              >
+                                {" "}
+                                Add
+                              </button>
+                              
                             </div>
                           </fieldset>
                         </form>

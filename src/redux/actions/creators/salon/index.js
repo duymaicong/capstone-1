@@ -433,14 +433,33 @@ const getProfileOfSalonFailed = (errMess) => {
 //ADD NEW SERVICE
 export const addService =
   (token, serviceData, successCallback) => (dispatch) => {
-    const data = new URLSearchParams({ ...serviceData });
-    return fetch(`${api}api/salonowner/create/service`, {
+  
+    const data = new FormData();
+    
+    data.append("name", serviceData.name);
+    data.append("price", serviceData.price);
+    data.append("promotion", serviceData.promotion);
+    data.append("content",serviceData.content);
+    data.append("description",serviceData.description);
+    data.append('image', serviceData.image);
+    data.append("service_time",serviceData.service_time)
+   
+
+
+    // console.log(data)
+    for (var value of data.values()) {
+      console.log(value);
+   }
+    
+    
+    console.log(serviceData)
+    return fetch(`${api}api/salonowner/createServiceByFirebase`, {
       method: "POST",
       body: data,
       headers: {
-        "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
         "x-access-token": `${token}`,
       },
+      
     })
       .then(
         async (response) => {
@@ -1016,10 +1035,11 @@ export const getReviewOfSalon = (token,star) => (dispatch) => {
         dispatch(
           getReviewOfSalonSuccesfully({
             reviewOfSalon: response.data,
+            messageReview: response.message
           })
         );
       } else {
-        dispatch(getReviewOfSalonFailed(response.message));
+        dispatch(getReviewOfSalonSuccesfully(response.message));
       }
     })
     .catch((error) => {
@@ -1038,4 +1058,9 @@ const getReviewOfSalonFailed = (errMess) => {
     type: SalonActionTypes.GET_REVIEW_FOR_SALON_FAILED,
     payload: errMess,
   };
+};
+export const resetReviewOfSalon = () => (dispatch) => {
+  dispatch({
+    type: SalonActionTypes.RESET_REVIEW_OF_SALON,
+  });
 };

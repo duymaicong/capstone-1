@@ -16,6 +16,8 @@ export const VoteOfSalonByCustomer= (
           voteOfSalon: action.payload.voteOfSalon,
           errMess: null,
         };
+        case CustomerActionTypes.RESET_VOTE_OF_SALON:
+      return { ...state, currentSchedule: null, errMess: null };
   
       default:
         return state;
@@ -39,8 +41,33 @@ export const VoteOfSalonByCustomer= (
           reviewOfSalon: action.payload.reviewOfSalon,
           errMess: null,
         };
+        case CustomerActionTypes.RESET_REVIEW_OF_SALON:
+      return { ...state, currentSchedule: null, errMess: null };
   
       default:
         return state;
     }
   };
+
+  export const AddFeedBack= (
+    state = {
+      addFeedBack: null,
+      errMess: null,
+    },
+    action
+  ) => {
+    switch (action.type) {
+      case CustomerActionTypes.ADD_FEEDBACK_FAILED:
+        return { ...state, addFeedBack: null, errMess: action.payload.errMess };
+      case CustomerActionTypes.ADD_FEEDBACK_SUCCESSFULLY:
+        return {
+          ...state,
+          addFeedBack: action.payload.addFeedBack,
+          errMess: null,
+        };
+  
+      default:
+        return state;
+    }
+  };
+  

@@ -10,6 +10,7 @@ import {
 import {
   ReviewOfSalonByCustomer,
   VoteOfSalonByCustomer,
+  AddFeedBack,
 } from "../reducers/customer";
 import {
   Booking,
@@ -87,6 +88,7 @@ const rootReducer = combineReducers({
   //customer
   voteOfSalonByCustomer:VoteOfSalonByCustomer,
   reviewOfSalonByCustomer:ReviewOfSalonByCustomer,
+  addFeedBack:AddFeedBack,
 });
 
 export const ConfigureStore = () => {

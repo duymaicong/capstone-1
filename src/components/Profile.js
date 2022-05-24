@@ -327,8 +327,11 @@ export default function Profile() {
               <DatePicker
                 selected={new Date(profileInfo?.birthday)}
                 onChange={(date) => {
-                  const dateStr = date.toISOString();
-                  setProfileInfo({ ...profileInfo, birthday: dateStr });
+                //   const localISOTime = (date).toISOString();
+                  var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
+                  var localISOTime = (new Date(date - tzoffset)).toISOString().slice(0, -1);
+                  console.log(localISOTime)
+                  setProfileInfo({ ...profileInfo, birthday: localISOTime });
                 }}
               />
             </Grid>

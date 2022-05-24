@@ -330,6 +330,8 @@ export const ReviewOfSalon = (
         reviewOfSalon: action.payload.reviewOfSalon,
         errMess: null,
       };
+      case SalonActionTypes.RESET_REVIEW_OF_SALON:
+      return { ...state, currentSchedule: null, errMess: null };
 
     default:
       return state;

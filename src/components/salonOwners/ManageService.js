@@ -7,6 +7,8 @@ import bgImg from "../../assets/barbershopbg.jpg";
 import patterbg from "../../assets/patterbg.svg";
 import { districts, times } from "../../assets/data/data.js";
 import { validEmail, validPhone } from "../../validations/regex";
+// import axios from "axios";
+
 
 import {
   getListServiceForSalon,
@@ -17,6 +19,7 @@ import {
   editService,
   editSalonInfo,
   getVoteOfSalon,
+  resetReviewOfSalon,
   getReviewOfSalon,
 } from "../../redux/actions/creators/salon";
 import {
@@ -33,6 +36,7 @@ import Tab from "@mui/material/Tab";
 import TabContext from "@mui/lab/TabContext";
 import TabList from "@mui/lab/TabList";
 import TabPanel from "@mui/lab/TabPanel";
+import { set } from "date-fns";
 
 // -- MODAL CSS --
 const modalcss = {
@@ -61,6 +65,8 @@ const root = {
 };
 
 export default function ManageService() {
+
+
   //create state for add service
   const [serviceName, setServiceName] = useState("");
   const [serviceTime, setServiceTime] = useState(15);
@@ -75,10 +81,11 @@ export default function ManageService() {
 
   const handleGetReviewByStar = (e) => {
     e.preventDefault();
-    var star=e.target.value;
+    var star = e.target.value;
     console.log(star)
-    dispatch(getReviewOfSalon(token,{ star:star}));
-   
+    dispatch(resetReviewOfSalon());
+    dispatch(getReviewOfSalon(token, { star: star }));
+
   };
 
   //create state for error
@@ -88,6 +95,9 @@ export default function ManageService() {
 
   //STATE EDIT SERVICE
   const [serviceInfo, setServiceInfo] = useState(undefined);
+
+
+
 
   //setServiceTime,
   const addTime = () => {
@@ -144,6 +154,8 @@ export default function ManageService() {
     setError(false);
     setPiceError(false);
     setPromotionError(false);
+    
+
 
     const newService = {
       name: serviceName,
@@ -152,7 +164,7 @@ export default function ManageService() {
       promotion: promotion,
       content: content,
       description: description,
-      image: imageService,
+      image: imageService
     };
     let pass = true;
     if (
@@ -176,8 +188,11 @@ export default function ManageService() {
       setPromotionError(true);
       pass = false;
     }
+   
+   
+
     if (pass) {
-      console.log(newService);
+
       resetAddServiceForm();
       const successCallback = () => {
         console.log("success callback");
@@ -186,6 +201,7 @@ export default function ManageService() {
         dispatch(getListServiceForSalon(token));
       };
       dispatch(addService(token, newService, successCallback));
+    
     }
   };
 
@@ -199,6 +215,7 @@ export default function ManageService() {
   const { token, account_name: username } = useSelector(
     (state) => state.loginAccount.account
   );
+ 
   useEffect(() => {
     dispatch(getListServiceForSalon(token));
     return () => {
@@ -221,11 +238,11 @@ export default function ManageService() {
   }, [dispatch, token]);
 
   // -- Get review of salon
-  const { reviewOfSalon } = useSelector((state) => state.reviewOfSalon);
+  const { reviewOfSalon,messageReview } = useSelector((state) => state.reviewOfSalon);
 
   useEffect(() => {
-    dispatch(getReviewOfSalon(token,{star:starSearch}));
-    
+    dispatch(getReviewOfSalon(token, { star: starSearch }));
+
   }, [dispatch, token]);
 
   // -- TABS --
@@ -286,6 +303,10 @@ export default function ManageService() {
   //CALL SUCESSMESS EDIT SERVICE
   const { serviceEdited, successMess } = useSelector(
     (state) => state.editService
+  );
+   //CALL SUCESSMESS EDIT SERVICE
+   const { addNewService} = useSelector(
+    (state) => state.addNewService
   );
 
   // STATE ERROR FOR EDIT SERVICE
@@ -433,12 +454,14 @@ export default function ManageService() {
     <div>
       {" "}
       <div style={root}>
+        
         <div className="columns">
           <div className="column is-3"></div>
           <div
             className="column is-6 mt-5 p-0"
             style={{ boxShadow: "1px 1px 20px black" }}
           >
+            
             <div
               className="p-0 container"
               style={{ backgroundColor: "#FBE8CA" }}
@@ -864,8 +887,8 @@ export default function ManageService() {
                                       {" "}
                                       {currencyFormatter.format(
                                         service.price -
-                                          (service.price / 100) *
-                                            service.promotion
+                                        (service.price / 100) *
+                                        service.promotion
                                       )}{" "}
                                     </span>
                                     <span className="tag is-danger has-text-weight-semibold">
@@ -1050,7 +1073,8 @@ export default function ManageService() {
                               <label>Image:</label>
                             </div>
                             <div className="form-outline mb-4">
-                              <input
+                              <input type="file" accept=".png, .jpg, .jpeg" onChange={(e) => { setImageService(e.target.files[0]) }} />
+                              {/* <input
                                 maxLength={2000}
                                 type="text"
                                 className="form-control form-control-lg"
@@ -1059,10 +1083,10 @@ export default function ManageService() {
                                   setImageService(event.target.value);
                                 }}
                                 placeholder="Image*"
-                              />
+                              /> */}
                             </div>
                             <div>
-                              <label>Description:</label>
+                              <label>Description:</label> 
                             </div>
                             <div className="form-outline mb-4">
                               <textarea
@@ -1245,7 +1269,7 @@ export default function ManageService() {
                               <label>Image:</label>
                             </div>
                             <div className="form-outline mb-4">
-                              <input
+                              {/* <input
                                 maxLength={2000}
                                 type="text"
                                 className="form-control form-control-lg"
@@ -1257,7 +1281,8 @@ export default function ManageService() {
                                   });
                                 }}
                                 placeholder="Image*"
-                              />
+                              /> */}
+                              <input type="file" accept=".png, .jpg, .jpeg" onChange={(e) => { setImageService(e.target.files[0]) }} />
                             </div>
                             <div>
                               <label>Description:</label>
@@ -1279,6 +1304,7 @@ export default function ManageService() {
                                 placeholder="Description"
                               />
                             </div>
+                           
                             <div>
                               {successMess && (
                                 <p className="text-success">{successMess}</p>
@@ -1301,7 +1327,7 @@ export default function ManageService() {
                                 onClick={handleEditService}
                               >
                                 {" "}
-                                Add
+                                Edit
                               </button>
                             </div>
                           </form>
@@ -1345,59 +1371,59 @@ export default function ManageService() {
                   <TabPanel value="2">
                     <div>
                       <div className=" columns,mx-auto mb-4">
-                      {voteOfSalon?.map((vote) => (
-                            <p className="has-text-info">
+                        {voteOfSalon?.map((vote) => (
+                          <p className="has-text-info">
 
-                              {" "}
+                            {" "}
 
-                              <span className="is-size-4 has-text-weight-semibold">
-                                {vote.AverangeVote}
-                              </span>
-                              <Rating
-                                name="half-rating-read"
-                                defaultValue={vote.AverangeVote}
-                                precision={0.1}
-                                readOnly
-                              />
-                              
-                              <br></br>
-                              out of 5<br></br>
-                              {vote.TotalVote} reviews
-                            </p>
-                          ))}
-                          <div className="column is-9 has-text-left mt-3">
+                            <span className="is-size-4 has-text-weight-semibold">
+                              {(vote.AverangeVote).toFixed(1)}
+                            </span>
+                            <Rating
+                              name="half-rating-read"
+                              defaultValue={vote.AverangeVote}
+                              precision={0.1}
+                              readOnly
+                            />
+
+                            <br></br>
+                            out of 5<br></br>
+                            {vote.TotalVote} reviews
+                          </p>
+                        ))}
+                        <div className="column is-9 has-text-left mt-3">
                           <p>{starSearch}</p>
-                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
-                          onClick={handleGetReviewByStar} value="5">
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium"
+                            onClick={handleGetReviewByStar} value="5">
                             5
                           </button>
-                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
-                           onClick={handleGetReviewByStar} value="4">
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium"
+                            onClick={handleGetReviewByStar} value="4">
                             4
                           </button>
-                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
-                           onClick={handleGetReviewByStar} value="3">
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium"
+                            onClick={handleGetReviewByStar} value="3">
                             3
                           </button>
-                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium" 
-                           onClick={handleGetReviewByStar} value="2">
+                          <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium"
+                            onClick={handleGetReviewByStar} value="2">
                             2
                           </button>
                           <button style={{ border: " 1px solid darkblue" }} className="button is-rounded is-link is-light mr-4 is-medium"
-                           onClick={handleGetReviewByStar} value="1">
+                            onClick={handleGetReviewByStar} value="1">
                             1
                           </button>
                         </div>
-                       
+
                         <div
                           className="column is-9 has-text-centered mt-3"
                           style={{ display: "inline-block" }}
                         >
-                          
-                         
-                          
+
+
+
                         </div>
-                        
+
                       </div>
                       <hr
                         style={{
@@ -1407,47 +1433,48 @@ export default function ManageService() {
                           opacity: "60%",
                         }}
                       ></hr>
-                     {reviewOfSalon?.map((review) => (
-                       
-                        
-                       <div
-                         className="m-4  "
-                         style={{
-                           backgroundColor: "white",
-                           height: "10rem",
-                           borderRadius: "25px",
-                         }}
-                       >
-                         <h1 className="ml-3 is-size-4">
-                         {review.nameCustomer}
-                           - {review.wsend}
-                         </h1>
-                         <p className="ml-3 is-size-5"> 
-                         {review.rate/2}
-                         <Rating
-                                name="half-rating-read"
-                                defaultValue={review.rate/2}
-                                precision={0.1}
-                                readOnly
-                              />
-                         </p>
-                         <p className="ml-3 is-size-5"> 
-                         {convertISOStringToLocaleDateString(review.dateCreate)}
-                         </p>
-                         <hr
-                           className="solid"
-                           style={{
-                             width: "95%",
-                             marginTop: 5,
-                             marginLeft: 10,
-                             marginBottom: 0,
-                             borderTop: 1 + "px solid grey",
-                             opacity: 60 + "%",
-                           }}
-                         />
-                         <p className="ml-3"> {review.content}</p>
-                       </div>
-                     ))}
+                      {<p>{messageReview}</p>}
+                      {reviewOfSalon?.map((review) => (
+
+
+                        <div
+                          className="m-4  "
+                          style={{
+                            backgroundColor: "white",
+                            height: "10rem",
+                            borderRadius: "25px",
+                          }}
+                        >
+                          <h1 className="ml-3 is-size-4">
+                            {review.nameCustomer}
+                            - {review.wsend}
+                          </h1>
+                          <p className="ml-3 is-size-5">
+                            {review.rate / 2}
+                            <Rating
+                              name="half-rating-read"
+                              value={review.rate / 2}
+                              precision={0.1}
+                              readOnly
+                            />
+                          </p>
+                          <p className="ml-3 is-size-5">
+                            {convertISOStringToLocaleDateString(review.dateCreate)}
+                          </p>
+                          <hr
+                            className="solid"
+                            style={{
+                              width: "95%",
+                              marginTop: 5,
+                              marginLeft: 10,
+                              marginBottom: 0,
+                              borderTop: 1 + "px solid grey",
+                              opacity: 60 + "%",
+                            }}
+                          />
+                          <p className="ml-3"> {review.content}</p>
+                        </div>
+                      ))}
                     </div>
                   </TabPanel>
                 </TabContext>
