@@ -432,7 +432,7 @@ const getProfileOfSalonFailed = (errMess) => {
 
 //ADD NEW SERVICE
 export const addService =
-  (token, serviceData, successCallback) => (dispatch) => {
+  (token, serviceData, successCallback, errCallback) => (dispatch) => {
   
     const data = new FormData();
     
@@ -461,6 +461,26 @@ export const addService =
       },
       
     })
+    .then(
+      async (response) => {
+        if (response.ok) {
+          return response.json();
+        } else {
+          var error = new Error(
+            "Error " + response.status + ": " + response.statusText
+          );
+          const errMess = (await response.json()).message;
+          dispatch(addNewServiceFailed(errMess));
+          console.log("ok",errMess)
+          errCallback(errMess)
+          throw error;
+        }
+      },
+      (error) => {
+        var errMess = new Error(error);
+        throw errMess;
+      }
+    )
       .then(
         async (response) => {
           if (response.ok) {
@@ -469,8 +489,12 @@ export const addService =
             var error = new Error(
               "Error " + response.status + ": " + response.statusText
             );
+           
             const errMess = (await response.json()).message;
             dispatch(addNewServiceFailed(errMess));
+           
+       
+            
             throw error;
           }
         },
@@ -487,13 +511,16 @@ export const addService =
               successMessage: response.message,
             })
           );
-          successCallback();
+          
+          successCallback(response.message);
         } else {
           dispatch(addNewServiceFailed(response.message));
+          errCallback(response.message)
         }
       })
       .catch((error) => {
         console.log("Add new service failed", error);
+        
       });
   };
 const addNewServiceFailed = (errMess) => {

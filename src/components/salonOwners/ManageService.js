@@ -76,6 +76,9 @@ export default function ManageService() {
   const [description, setDescription] = useState("");
   const [imageService, setImageService] = useState("");
 
+  const [messageAddService,setMessageAddService]= useState("")
+
+
   // search review by star
   const [starSearch, setStar] = useState("");
 
@@ -154,7 +157,7 @@ export default function ManageService() {
     setError(false);
     setPiceError(false);
     setPromotionError(false);
-    
+
 
 
     const newService = {
@@ -173,8 +176,8 @@ export default function ManageService() {
       serviceTime === "" ||
       promotion === "" ||
       content === "" ||
-      description === "" ||
-      imageService === ""
+      description === ""
+
     ) {
       setError(true);
       pass = false;
@@ -188,20 +191,37 @@ export default function ManageService() {
       setPromotionError(true);
       pass = false;
     }
-   
-   
+
+
 
     if (pass) {
 
-      resetAddServiceForm();
-      const successCallback = () => {
+
+      const successCallback = (mess) => {
+        resetAddServiceForm();
         console.log("success callback");
         dispatch(resetListServiceOfSalon());
-        handleCloseService();
         dispatch(getListServiceForSalon(token));
+        setTimeout(handleCloseService(), 1000)
+
       };
-      dispatch(addService(token, newService, successCallback));
-    
+      const errCallback = (mess) => {
+        if (mess=="Could not upload the file: undefined. TypeError: Cannot read properties of undefined (reading 'originalname')") {
+          setMessageAddService("chọn ảnh để tạo service")
+        } else if(mess=='Could not upload the file: undefined. Error: Only .png, .jpg and .jpeg format allowed!') {
+          setMessageAddService("chọn file ảnh .png, .jpg and .jpeg để tạo service")
+        }else{
+          setMessageAddService(mess)
+        }
+        
+ 
+        console.log("err callback");
+        // dispatch(resetListServiceOfSalon());
+        // // handleCloseService();
+        // dispatch(getListServiceForSalon(token));
+      };
+      dispatch(addService(token, newService, successCallback, errCallback));
+
     }
   };
 
@@ -215,7 +235,7 @@ export default function ManageService() {
   const { token, account_name: username } = useSelector(
     (state) => state.loginAccount.account
   );
- 
+
   useEffect(() => {
     dispatch(getListServiceForSalon(token));
     return () => {
@@ -238,7 +258,7 @@ export default function ManageService() {
   }, [dispatch, token]);
 
   // -- Get review of salon
-  const { reviewOfSalon,messageReview } = useSelector((state) => state.reviewOfSalon);
+  const { reviewOfSalon, messageReview } = useSelector((state) => state.reviewOfSalon);
 
   useEffect(() => {
     dispatch(getReviewOfSalon(token, { star: starSearch }));
@@ -256,6 +276,7 @@ export default function ManageService() {
   const handleOpenService = () => setOpenSerive(true);
   const handleCloseService = () => {
     setOpenSerive(false);
+    resetAddServiceForm();
   };
 
   // -- MODAL EDIT SERVICE --
@@ -304,8 +325,8 @@ export default function ManageService() {
   const { serviceEdited, successMess } = useSelector(
     (state) => state.editService
   );
-   //CALL SUCESSMESS EDIT SERVICE
-   const { addNewService} = useSelector(
+  //CALL SUCESSMESS EDIT SERVICE
+  const { addNewService } = useSelector(
     (state) => state.addNewService
   );
 
@@ -454,14 +475,14 @@ export default function ManageService() {
     <div>
       {" "}
       <div style={root}>
-        
+
         <div className="columns">
           <div className="column is-3"></div>
           <div
             className="column is-6 mt-5 p-0"
             style={{ boxShadow: "1px 1px 20px black" }}
           >
-            
+
             <div
               className="p-0 container"
               style={{ backgroundColor: "#FBE8CA" }}
@@ -1086,7 +1107,7 @@ export default function ManageService() {
                               /> */}
                             </div>
                             <div>
-                              <label>Description:</label> 
+                              <label>Description:</label>
                             </div>
                             <div className="form-outline mb-4">
                               <textarea
@@ -1102,6 +1123,7 @@ export default function ManageService() {
                                 placeholder="Description"
                               />
                             </div>
+                            <p className="text-success">{messageAddService}</p>
 
                             <div className="has-text-right">
                               <button
@@ -1304,7 +1326,7 @@ export default function ManageService() {
                                 placeholder="Description"
                               />
                             </div>
-                           
+
                             <div>
                               {successMess && (
                                 <p className="text-success">{successMess}</p>
