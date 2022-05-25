@@ -441,7 +441,7 @@ export default function RegisterSalon() {
                               value={dedtailAddress}
                               type="text"
                               className="form-control"
-                              maxLength={40}
+                              maxLength={450}
                               onChange={handleDetailAddress}
                             />
                           </div>
@@ -499,14 +499,18 @@ export default function RegisterSalon() {
                                 Salon's image
                               </span>
                             </div>
-                            <input
+                            {/* <input
                               value={salonImage}
                               type="text"
                               className="form-control"
                               maxLength={2000}
                               onChange={handleSalonImage}
-                            />
+                            /> */}
+                            <input type="file" accept=".png, .jpg, .jpeg" onChange={(e) => { 
+                            setSalonImage( e.target.files[0])
+                           }} />
                           </div>
+                          
                         </div>
                         <div className="">
                           <div className="form-group">

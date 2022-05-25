@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   getProfileOfSalon,
   editSalonBusinessInfo,
+  editSalonBusinessInfoFirebase
 } from "../../redux/actions/creators/salon";
 import { Modal, Box, Tooltip } from "@mui/material";
 import { logout } from "../../redux/actions/creators/auth";
@@ -47,11 +48,14 @@ export default function SalonDashboard() {
   );
   //STATE EDIT BUSINESS INFO
   const [businessInfo, setBusinessInfo] = useState(null);
+  const [checkImage, setCheckImage] = useState('');
+  const [message,setMessage] = useState('');
 
   //LOAD BUSINESS INFO
   useEffect(() => {
     if (profileSalon) {
       setBusinessInfo(profileSalon[0]);
+      setCheckImage(profileSalon[0].image)
     }
   }, [profileSalon]);
 
@@ -59,6 +63,13 @@ export default function SalonDashboard() {
   const [emptyError, setEmptyError] = useState(false);
   const [emailErr, setEmailErr] = useState(false);
   const [phoneErr, setPhoneErr] = useState(false);
+
+  // 
+  const handleEditInfor =(e)=>{
+    handleOpen();
+    console.log(e)
+    setCheckImage('a');
+  }
 
   //EDIT BUSINESS INFO
   const handleEditBusinessInfo = (e) => {
@@ -90,8 +101,7 @@ export default function SalonDashboard() {
       !city ||
       !detailAddress ||
       !timeOpen ||
-      !timeClose ||
-      !image
+      !timeClose 
     ) {
       setEmptyError(true);
       return;
@@ -120,12 +130,26 @@ export default function SalonDashboard() {
       timeClose,
       image,
     };
-    
-    const successCallback = () => {
+    console.log(checkImage)
+    if (!image) {
+      submitOjb.image=checkImage;
+    }
+    const successCallback = (mess) => {
+      setMessage(mess)
       handleClose();
       dispatch(getProfileOfSalon(token));
     };
-    dispatch(editSalonBusinessInfo(token, submitOjb, successCallback));
+    const errorCallback =(mess) =>{
+      console.log(mess)
+      setMessage(mess)
+
+    }
+    if (typeof submitOjb.image == 'string') {
+      dispatch(editSalonBusinessInfo(token, submitOjb, successCallback,errorCallback));
+    } else {
+      dispatch(editSalonBusinessInfoFirebase(token, submitOjb, successCallback,errorCallback));
+    }
+    
   };
 
   return profileSalon ? (
@@ -205,7 +229,11 @@ export default function SalonDashboard() {
               <button
                 className="button is-info is-rounded"
                 style={{ width: "200px" }}
-                onClick={handleOpen}
+                onClick={(e)=>{
+                  setCheckImage(profileSalon[0].image);
+                  console.log(profileSalon[0].image);
+                  handleOpen();
+                }}
               >
                 Edit
               </button>
@@ -406,7 +434,7 @@ export default function SalonDashboard() {
                   <input
                     type="text"
                     className="form-control"
-                    maxLength={40}
+                    maxLength={100}
                     value={businessInfo?.detailAddress}
                     onChange={(e) => {
                       setBusinessInfo({
@@ -482,7 +510,7 @@ export default function SalonDashboard() {
                       Salon's image
                     </span>
                   </div>
-                  <input
+                  {/* <input
                     type="text"
                     className="form-control"
                     maxLength={2000}
@@ -493,15 +521,16 @@ export default function SalonDashboard() {
                         image: e.target.value,
                       });
                     }}
-                  />
+                  /> */}
+                  <input type="file" accept=".png, .jpg, .jpeg" onChange={(e) => {setBusinessInfo({
+                                    ...businessInfo,
+                                    image: e.target.files[0],
+                                  }); }} />
                 </div>
               </div>
               <div>
-                {successMess && <p className="text-success">{successMess}</p>}
-                {errMess && <p className="text-danger">{errMess}</p>}
-                {emptyError && (
-                  <p className="text-danger">Please enter all the fields</p>
-                )}
+              <p className="text-success">{message}</p>
+               
               </div>
 
               <div className="has-text-right">

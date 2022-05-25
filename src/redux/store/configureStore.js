@@ -33,6 +33,8 @@ import {
   EditSalonInfo,
   VoteOfSalon,
   ReviewOfSalon,
+  EditServiceFirebase,
+  EditSalonBusinessInfoFirebase,
 } from "../reducers/salon";
 import {
   ListSalonActive,
@@ -80,6 +82,8 @@ const rootReducer = combineReducers({
   editSalonInfo: EditSalonInfo,
   voteOfSalon:VoteOfSalon,
   reviewOfSalon:ReviewOfSalon,
+  editServiceFirebase: EditServiceFirebase,
+  editSalonBusinessInfoFirebase:EditSalonBusinessInfoFirebase,
   //admin
   litSalonActivated: ListSalonActive,
   listSalonDeactive: ListSalonDeactive,

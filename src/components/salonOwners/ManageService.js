@@ -21,6 +21,7 @@ import {
   getVoteOfSalon,
   resetReviewOfSalon,
   getReviewOfSalon,
+  editServiceFirebase,
 } from "../../redux/actions/creators/salon";
 import {
   convertISOStringToLocaleTimeString,
@@ -98,6 +99,9 @@ export default function ManageService() {
 
   //STATE EDIT SERVICE
   const [serviceInfo, setServiceInfo] = useState(undefined);
+  const [messageEditService,setMessageEditService]= useState("");
+  const [checkImage,setCheckImage]= useState("")
+
 
 
 
@@ -283,7 +287,10 @@ export default function ManageService() {
   const [openEditService, setOpenEditService] = useState(false);
   const handleOpenEditService = (serviceInfo) => {
     setOpenEditService(true);
+    setMessageEditService('');
     setServiceInfo(serviceInfo);
+    setCheckImage(serviceInfo.image)
+    console.log(serviceInfo.image)
   };
   const handleCloseEditService = () => {
     setOpenEditService(false);
@@ -351,19 +358,26 @@ export default function ManageService() {
       !price ||
       !service_time ||
       !content ||
-      !description ||
-      !image
+      !description
     ) {
       setEditError("Please enter all the fields!");
       return;
     }
+    
     if (price <= 0) {
       setEditError("Price is a number greater than 0.");
     }
+    
     if (promotion < 0) {
       setEditError("Promotion is a number greater than or equal to 0..");
     }
+    if (promotion > 100) {
+      setEditError("Promotion :max 100");
+      return;
+    }
     setEditError(null);
+    console.log(!image)
+    
     const submitServiceObject = {
       name,
       price,
@@ -373,19 +387,45 @@ export default function ManageService() {
       description,
       image,
     };
+    if (!image) {
+      submitServiceObject.image=checkImage;
+    }
     const successCallback = () => {
       handleCloseEditService();
       dispatch(resetListServiceOfSalon());
       dispatch(getListServiceForSalon(token));
     };
-    dispatch(
-      editService(
-        token,
-        submitServiceObject,
-        successCallback,
-        serviceInfo.serviceId
-      )
-    );
+    const errorCallback = (mess) =>{
+      if (mess=="Could not upload the file: undefined. TypeError: Cannot read properties of undefined (reading 'originalname')") {
+        setMessageEditService("chọn ảnh để tạo service")
+      } else if(mess=='Could not upload the file: undefined. Error: Only .png, .jpg and .jpeg format allowed!') {
+        setMessageEditService("chọn file ảnh .png, .jpg and .jpeg để tạo service")
+      }else{
+        setMessageEditService(mess)
+      }
+     
+    }
+    if (typeof submitServiceObject.image == 'string') {
+      dispatch(
+        editService(
+          token,
+          submitServiceObject,
+          successCallback,
+          serviceInfo.serviceId,errorCallback,
+        )
+      );
+    } else {
+      dispatch(
+        editServiceFirebase(
+          token,
+          submitServiceObject,
+          successCallback,
+          serviceInfo.serviceId,errorCallback,
+        )
+      );
+    }
+    
+    
   };
 
   // -- MODAL EDIT PROFILE SALON --
@@ -1155,7 +1195,7 @@ export default function ManageService() {
                         <div>
                           <form>
                             <div>
-                              <label>Service's Name:</label>
+                              <label>Service's Name:*</label>
                             </div>
                             <div className="form-outline mb-4">
                               <input
@@ -1217,8 +1257,8 @@ export default function ManageService() {
                               </div>
                             </div>
                             <div className="row">
-                              <label className="col-6">Price:</label>
-                              <label className="col-6">Promotion:</label>
+                              <label className="col-6">Price:*</label>
+                              <label className="col-6">Promotion:*</label>
                             </div>
                             <div className="row">
                               <div className="col-6 input-group form-outline mb-4">
@@ -1270,7 +1310,7 @@ export default function ManageService() {
                             </div>
 
                             <div>
-                              <label>Content:</label>
+                              <label>Content:*</label>
                             </div>
                             <div className="form-outline mb-4">
                               <input
@@ -1288,23 +1328,14 @@ export default function ManageService() {
                               />
                             </div>
                             <div>
-                              <label>Image:</label>
+                              <label>Image:.png, .jpg .jpeg max 2M</label>
                             </div>
                             <div className="form-outline mb-4">
-                              {/* <input
-                                maxLength={2000}
-                                type="text"
-                                className="form-control form-control-lg"
-                                value={serviceInfo?.image}
-                                onChange={(event) => {
-                                  setServiceInfo({
+                              
+                              <input type="file" accept=".png, .jpg, .jpeg" onChange={(e) => { setServiceInfo({
                                     ...serviceInfo,
-                                    image: event.target.value,
-                                  });
-                                }}
-                                placeholder="Image*"
-                              /> */}
-                              <input type="file" accept=".png, .jpg, .jpeg" onChange={(e) => { setImageService(e.target.files[0]) }} />
+                                    image: e.target.files[0],
+                                  }); }} />
                             </div>
                             <div>
                               <label>Description:</label>
@@ -1326,6 +1357,7 @@ export default function ManageService() {
                                 placeholder="Description"
                               />
                             </div>
+                            <div><p className="text-success">{messageEditService}</p></div>
 
                             <div>
                               {successMess && (

@@ -134,14 +134,28 @@ const registerFailed = (errMess) => {
 };
 
 export const registerSalon = (account) => (dispatch) => {
-  const data = new URLSearchParams({
-    ...account,
-  });
-  return fetch(`${api}api/account/add/salon`, {
+  console.log(account)
+  const data = new FormData();
+  data.append("account_name", account.account_name);
+  data.append("password", account.password);
+  data.append("phone", account.phone);
+  data.append("role", account.role);
+  data.append("city", account.city);
+  data.append("district", account.district);
+  data.append("detailAddress", account.detailAddress);
+  data.append("taxCode", account.taxCode);
+  data.append("nameSalon", account.nameSalon);
+  data.append("timeOpen", account.timeOpen);
+  data.append("timeClose", account.timeClose);
+  data.append("image", account.image);
+  data.append("email", account.email);
+  data.append("description", account.description);
+  data.append("nameOwner", account.nameOwner);
+  return fetch(`${api}api/account/register/salon`, {
     method: "POST",
     body: data,
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+     
     },
   })
     .then(
